@@ -2,8 +2,6 @@ const express = require('express');
 // const { error } = require('./middleware');
 const path = require('path');
 
-// const socket = require('socket.io');
-
 const PORT = process.env.PORT || 3000;
 
 const app = express();
