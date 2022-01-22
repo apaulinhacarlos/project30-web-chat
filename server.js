@@ -1,16 +1,8 @@
 const express = require('express');
-// const { error } = require('./middleware');
-const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-app.set('view engine', 'ejs');
-app.set('views', './public');
 
 const http = require('http').createServer(app);
 
@@ -21,15 +13,7 @@ const io = require('socket.io')(http, {
   },
 });
 
-const routes = require('./routes');
-
-app.use(express.static(path.join(__dirname, '/public')));
-
 require('./sockets/chat')(io);
-
-app.use('/', routes);
-
-// app.use(error);
 
 http.listen(PORT, () => {
   console.log(`A mãe tá on na porta ${PORT}`);
