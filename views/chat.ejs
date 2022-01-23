@@ -7,18 +7,18 @@
   </head>
   <body>
     <header>
-      <h2 id="welcome-msg"></h2>
+      <h2>Bem-vindos ao TrybeChat</h2>
     </header>
 
     <main>
       <section>
         <div>
-          <h3>NickName:</h3>
-          <p id="user-id" data-testid="online-user"></p>
+          <h3>Usuários Online:</h3>
+          <ul id="users"></ul>
         </div>
         <div>
-          <input id="input-name" type="text" placeholder="Mude seu Nickname" data-testid="nickname-box">
-          <button id="btn-name" data-testid="nickname-button">Mudar</button>
+          <input data-testid="nickname-box" id="input-name" type="text" placeholder="Mude seu Nickname">
+          <button data-testid="nickname-button" id="btn-name">Mudar</button>
         </div>
       </section>
   
@@ -27,8 +27,8 @@
       <section>
         <div>
           <h3>TrybeChat:</h3>
-          <input id="input-msg" type="text" placeholder="Digite sua Mensagem" data-testid="message-box">
-          <button id="btn-msg" data-testid="send-button">Enviar</button>
+          <input data-testid="message-box" id="input-msg" type="text" placeholder="Digite sua Mensagem">
+          <button data-testid="send-button" id="btn-msg">Enviar</button>
         </div>
         <div>
           <ul id="chat">
@@ -44,22 +44,32 @@
 
     <script>
       const socket = io('http://localhost:3000');
-      socket.on('welcome', (msg) => {
-        const welcomeMsg = document.getElementById('welcome-msg');
-        welcomeMsg.innerText = msg;
-      });
 
-      socket.on('userId', (id) => {
-        const userId = document.getElementById('user-id');
-        const nickname = id.slice(0, 16);
-        userId.innerText = nickname;
+      socket.on('onlineUsers', (onlineUsers) => {
+        const client = onlineUsers.find(({ id }) => id === socket.id);
+        const listUsers = document.getElementById('users');
+        listUsers.innerHTML = '';
+
+        const newUser = document.createElement('li');
+        newUser.innerText = client.nickname;
+        newUser.setAttribute('data-testid', 'online-user');
+        newUser.id = 'client';
+        listUsers.appendChild(newUser);
+        
+        onlineUsers.forEach(({ id, nickname }) => {
+          if (id !== socket.id) {
+            const newUser = document.createElement('li');
+            newUser.innerText = nickname;
+            newUser.setAttribute('data-testid', 'online-user');
+            listUsers.appendChild(newUser);
+          }
+        });
       });
 
       const btnChangeName = document.getElementById('btn-name');
       btnChangeName.addEventListener('click', () => {
         const inputNickName = document.getElementById('input-name');
-        const userId = document.getElementById('user-id');
-        userId.innerText = inputNickName.value;
+        socket.emit('onlineUsers', { id: socket.id, nickname: inputNickName.value });
         inputNickName.value = '';
       });
 
@@ -74,12 +84,11 @@
       const btnSend = document.getElementById('btn-msg');
       btnSend.addEventListener('click', () => {
         const inputMessage = document.getElementById('input-msg');
-        const userId = document.getElementById('user-id').innerHTML;
-        const nickname = userId;
+        const client = document.getElementById('client').innerText;
+        const nickname = client;
         const chatMessage = inputMessage.value;
-        inputMessage.value = '';
-        
         socket.emit('message', { chatMessage, nickname });
+        inputMessage.value = '';
       });
     </script>
   </body>

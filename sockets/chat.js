@@ -1,29 +1,28 @@
 const moment = require('moment');
 const messagesModels = require('../models');
 
+let onlineUsers = [];
+
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log(`${socket.id} acaba de entrar`);
-
-    socket.emit('welcome', 'Bem-vindo ao TrybeChat!');
-
-    socket.emit('userId', `${socket.id}`);
+    onlineUsers.push({ id: socket.id, nickname: socket.id.slice(0, 16) });
+    io.emit('onlineUsers', onlineUsers);
 
     socket.on('message', async ({ chatMessage, nickname }) => {
-      const messageDB = {
-        message: chatMessage,
-        nickname,
-        timestamp: moment(new Date()).format('DD-MM-yyyy HH:mm:ss a'),
-      };
-
-      await messagesModels.create('messages', messageDB);
-
       const date = moment(new Date()).format('DD-MM-yyyy HH:mm:ss a');
-      const msg = `${date} - ${nickname} diz: ${chatMessage}`;
+      await messagesModels.create('messages', { message: chatMessage, nickname, timestamp: date });
+      io.emit('message', `${date} - ${nickname} diz: ${chatMessage}`);
+    });
 
-      console.log(`${nickname} diz: ${chatMessage}`);
+    socket.on('onlineUsers', (newNickname) => {
+      const index = onlineUsers.findIndex(({ id }) => id === newNickname.id);
+      onlineUsers[index] = newNickname;
+      io.emit('onlineUsers', onlineUsers);
+    });
 
-      io.emit('message', msg);
+    socket.on('disconnect', () => {
+      onlineUsers = onlineUsers.filter(({ id }) => id !== socket.id);
+      io.emit('onlineUsers', onlineUsers);
     });
   });
 };
