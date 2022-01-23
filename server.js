@@ -4,6 +4,9 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
 const http = require('http').createServer(app);
 
 const io = require('socket.io')(http, {
@@ -12,6 +15,10 @@ const io = require('socket.io')(http, {
     methods: ['GET', 'POST'],
   },
 });
+
+const routes = require('./routes');
+
+app.use('/', routes);
 
 require('./sockets/chat')(io);
 
