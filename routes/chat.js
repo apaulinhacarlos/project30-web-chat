@@ -1,9 +1,8 @@
 const express = require('express');
+const messagesControllers = require('../controllers');
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/', (_req, res) => {
-  res.render('chat');
-});
+router.get('/', messagesControllers.findAll);
 
 module.exports = router;

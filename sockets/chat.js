@@ -1,5 +1,5 @@
 const moment = require('moment');
-// a lib moment foi dica do Ricci
+const messagesModels = require('../models');
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
@@ -7,11 +7,19 @@ module.exports = (io) => {
 
     socket.emit('welcome', 'Bem-vindo ao TrybeChat!');
 
-    socket.emit('userId', `${socket.id}`); // verificar
+    socket.emit('userId', `${socket.id}`);
 
-    socket.on('message', ({ chatMessage, nickname }) => {
+    socket.on('message', async ({ chatMessage, nickname }) => {
+      const messageDB = {
+        message: chatMessage,
+        nickname,
+        timestamp: moment(new Date()).format('DD-MM-yyyy HH:mm:ss a'),
+      };
+
+      await messagesModels.create('messages', messageDB);
+
       const date = moment(new Date()).format('DD-MM-yyyy HH:mm:ss a');
-      const msg = `${date} - ${nickname} | ${chatMessage}`;
+      const msg = `${date} - ${nickname} diz: ${chatMessage}`;
 
       console.log(`${nickname} diz: ${chatMessage}`);
 
