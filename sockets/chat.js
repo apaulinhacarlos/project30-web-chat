@@ -14,9 +14,9 @@ module.exports = (io) => {
       io.emit('message', `${date} - ${nickname} diz: ${chatMessage}`);
     });
 
-    socket.on('onlineUsers', (newNick) => {
-      const index = onlineUsers.findIndex(({ id }) => id === newNick.id);
-      onlineUsers[index] = newNick;
+    socket.on('onlineUsers', (newNickname) => {
+      const index = onlineUsers.findIndex(({ id }) => id === newNickname.id);
+      onlineUsers[index] = newNickname;
       io.emit('onlineUsers', onlineUsers);
     });
 
