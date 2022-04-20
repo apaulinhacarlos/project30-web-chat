@@ -53,7 +53,7 @@ Instale as dependencias do projeto com o comando `npm install`:
 npm install
 ```
 
-Execute o projeto com os comandos `npm start` ou `npm run dev` (caso queira utilizar a lib nodemon) :
+Execute o projeto com os comandos `npm start` ou `npm run debug` (caso queira utilizar a lib nodemon) :
 
 ```bash
 npm start
